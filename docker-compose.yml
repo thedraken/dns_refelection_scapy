@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  dns_server:
+    image: andyshinn/dnsmasq:2.78
+    container_name: mydns
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf
+    networks:
+      scapy_network:
+        ipv4_address: 172.20.0.2
+
+  attacker:
+    image: scapy_container
+    build:
+      context: .
+      dockerfile: Dockerfile.attacker
+    container_name: attacker
+    volumes:
+      - ./scripts_attacker:/usr/src/app
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    depends_on:
+      - dns_server
+    dns:
+      - 172.20.0.2
+    networks:
+      scapy_network:
+        ipv4_address: 172.20.0.3
+
+
+  target:
+    image: scapy_container
+    build:
+      context: .
+      dockerfile: Dockerfile.target
+    container_name: target
+    volumes:
+      - ./scripts_target:/usr/src/app
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    depends_on:
+      - dns_server
+    dns:
+      - 172.20.0.2
+    networks:
+      scapy_network:
+        ipv4_address: 172.20.0.4
+
+networks:
+  scapy_network:
+    name: scapy_network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

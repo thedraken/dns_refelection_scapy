@@ -1,0 +1,15 @@
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
+
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+# Install Scapy
+RUN pip install --no-cache-dir scapy
+RUN pip install libpcap
+
+# Optional: Install additional packages or tools you need for attacking
+RUN apt-get update && apt-get install -y libpcap-dev tcpdump iputils-ping && rm -rf /var/lib/apt/lists/*
+
+# Command to run when the container starts
+CMD ["bash"]

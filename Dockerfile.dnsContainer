@@ -1,0 +1,14 @@
+# Use a lightweight Alpine Linux as the base image
+FROM alpine:latest
+
+# Install dnsmasq
+RUN apk add --no-cache dnsmasq
+
+# Copy our dnsmasq configuration file into the container
+COPY dnsmasq.conf /etc/dnsmasq.conf
+
+# Expose DNS port
+EXPOSE 53 53/udp
+
+# Run dnsmasq in the foreground
+CMD ["dnsmasq", "-k"]
